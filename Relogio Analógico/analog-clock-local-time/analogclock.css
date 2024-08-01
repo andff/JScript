@@ -1,0 +1,22 @@
+.analogclock-clock
+{
+	position: relative;
+	background-image: url('img/clock.svg');
+	background-size: contain;
+}
+
+.analogclock-h-hand
+{
+	position: absolute;
+	background-image: url('img/hour.svg');
+	background-size: contain;
+	transform-origin: 50% 95.89%;
+}
+
+.analogclock-m-hand
+{
+	position: absolute;
+	background-image: url('img/min.svg');
+	background-size: contain;
+	transform-origin: 50% 96.72%;
+}

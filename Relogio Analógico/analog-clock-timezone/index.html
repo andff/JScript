@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Analog Clock With Timezone Support Examples</title>
+<link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/darkly/bootstrap.min.css">
+<style>
+  .container { margin: 150px auto; }
+  .row { margin: 1.5rem auto; }
+  </style>
+</head>
+
+<body><div id="jquery-script-menu">
+<div class="jquery-script-center">
+<ul>
+<li><a href="https://www.jqueryscript.net/time-clock/analog-clock-timezone.html">Download This Plugin</a></li>
+<li><a href="https://www.jqueryscript.net/">Back To jQueryScript.Net</a></li>
+</ul><div id="carbon-block"></div>
+<div class="jquery-script-ads"><script type="text/javascript"><!--
+google_ad_client = "ca-pub-2783044520727903";
+/* jQuery_demo */
+google_ad_slot = "2780937993";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="https://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></div>
+<div class="jquery-script-clear"></div>
+</div>
+</div>
+<script>
+try {
+  fetch(new Request("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", { method: 'HEAD', mode: 'no-cors' })).then(function(response) {
+    return true;
+  }).catch(function(e) {
+    var carbonScript = document.createElement("script");
+    carbonScript.src = "//cdn.carbonads.com/carbon.js?serve=CK7DKKQU&placement=wwwjqueryscriptnet";
+    carbonScript.id = "_carbonads_js";
+    document.getElementById("carbon-block").appendChild(carbonScript);
+  });
+} catch (error) {
+  console.log(error);
+}
+</script>
+<div class="container">
+  <h1 class="text-center">Analog Clock With Timezone Support Examples</h1>
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Basic</h5>
+        <div class="card-body">
+          <canvas id="basic" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Custom Timezone</h5>
+        <div class="card-body">
+          <canvas id="timezone" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Custom Appearance</h5>
+        <div class="card-body">
+          <canvas id="custom" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Gray Fantastic</h5>
+        <div class="card-body">
+          <canvas id="gray_fantastic" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Black Bolded</h5>
+        <div class="card-body">
+          <canvas id="black_bolded" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Nice Bolded</h5>
+        <div class="card-body">
+          <canvas id="nice_bolded" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">White Nice</h5>
+        <div class="card-body">
+          <canvas id="white_nice" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Modern Dark</h5>
+        <div class="card-body">
+          <canvas id="modern_dark" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card text-center">
+        <h5 class="card-header">Ocean Blue</h5>
+        <div class="card-body">
+          <canvas id="ocean_blue" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="jquery.ht-analog-clock.js"></script>
+<script>
+$(function () {
+  $("#basic").htAnalogClock();
+  $("#timezone").htAnalogClock({}, {
+    timezone: "America/Los_Angeles"
+  });
+  $("#custom").htAnalogClock({
+    fillColor: "rgba(255, 100, 255, 0.2)",
+    fontColor: "#000",
+    pinColor: "#f80",
+    majorTicksColor: "#000",
+    minorTicksColor: "#111",
+    hourHandColor: "#00f",
+    minuteHandColor: "#0f0",
+    drawSecondHand: false
+  });
+  $("#gray_fantastic").htAnalogClock(htAnalogClock.preset_gray_fantastic);
+  $("#black_bolded").htAnalogClock(htAnalogClock.preset_black_bolded);
+  $("#nice_bolded").htAnalogClock(htAnalogClock.preset_nice_bolded);
+  $("#ocean_blue").htAnalogClock(htAnalogClock.preset_ocean_blue);
+  $("#white_nice").htAnalogClock(htAnalogClock.preset_white_nice);
+  $("#modern_dark").htAnalogClock(htAnalogClock.preset_modern_dark);
+});
+</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36251023-1']);
+  _gaq.push(['_setDomainName', 'jqueryscript.net']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</body>
+</html>
