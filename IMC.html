@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de IMC</title>
+    <style>
+        body {
+            font-family: Verdana, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="number"] {
+            width: 90%;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Calculadora de IMC</h2>
+        <form id="imcForm">
+            <label for="weight">Peso (kg):</label>
+                <input type="number" id="weight" required><br>
+            <label for="height">Altura (cm):</label>
+                <input type="number" id="height" required>
+            
+            <button type="submit">Calcular IMC</button>
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('imcForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const weight = parseFloat(document.getElementById('weight').value);
+            const heightCm = parseFloat(document.getElementById('height').value);
+
+            if (weight > 0 && heightCm > 0) {
+                const heightM = heightCm / 100; // Converte centímetros para metros
+                const imc = weight / (heightM * heightM);
+                let classification = '';
+
+                if (imc < 18.5) {
+                    classification = 'Abaixo do peso';
+                } else if (imc >= 18.5 && imc < 24.9) {
+                    classification = 'Peso normal';
+                } else if (imc >= 25 && imc < 29.9) {
+                    classification = 'Sobrepeso';
+                } else {
+                    classification = 'Obesidade';
+                }
+
+                document.getElementById('result').textContent = `Seu IMC é ${imc.toFixed(2)} (${classification})`;
+            } else {
+                document.getElementById('result').textContent = 'Por favor, insira valores válidos.';
+            }
+        });
+    </script>
+</body>
+</html>
