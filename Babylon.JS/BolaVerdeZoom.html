@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Babylon.js - Cena Básica</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body>
+    <canvas id="renderCanvas" style="width: 100%; height: 80%;"></canvas>
+    <script>
+        // Seleciona o canvas
+        const canvas = document.getElementById("renderCanvas");
+
+        // Cria o motor Babylon
+        const engine = new BABYLON.Engine(canvas, true);
+
+        // Cria a cena
+        const scene = new BABYLON.Scene(engine);
+
+        // Adiciona uma câmera arc rotate
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2, 5, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+
+        // Adiciona uma luz
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+        // Cria uma esfera
+        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2 }, scene);
+
+        // Define o material da esfera
+        const material = new BABYLON.StandardMaterial("material", scene);
+        material.diffuseColor = new BABYLON.Color3(0, 1, 0); // Verde
+        sphere.material = material;
+
+        // Renderiza a cena
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+
+        // Ajusta o tamanho da tela ao redimensionar a janela
+        window.addEventListener("resize", () => {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

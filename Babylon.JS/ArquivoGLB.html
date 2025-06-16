@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Babylon.js - Carregar Modelo GLB</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+</head>
+<body>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+    <script>
+        // Seleciona o canvas
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
+
+        // Adiciona uma câmera
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+
+        // Adiciona uma luz
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+        // Carregar o modelo GLB
+        BABYLON.SceneLoader.Append("", "Cadeira.glb", scene, function () {
+            console.log("Modelo carregado com sucesso!");
+        }, null, function (scene, message) {
+            console.error("Erro ao carregar modelo: ", message);
+        });
+
+        // Renderiza a cena
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+
+        // Ajusta o tamanho da tela ao redimensionar
+        window.addEventListener("resize", () => {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

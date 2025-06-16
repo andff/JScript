@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js - Ambiente Interativo</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <canvas id="renderCanvas" style="width: 100%; height: 100%"></canvas>
+    <script>
+        // Cria a cena, motor de renderização e canvas
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
+
+        // Adiciona uma câmera de observação
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+
+        // Adiciona uma luz direcional que pode ser movida pelo usuário
+        const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(1, -1, 0), scene);
+        light.position = new BABYLON.Vector3(10, 10, 10);
+
+        // Adiciona um plano ao fundo
+        const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 40, height: 40}, scene);
+        ground.position.y = -2;
+
+        // Adiciona uma esfera giratória no centro da cena
+        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 10}, scene);
+        sphere.position.y = 1;
+
+        // Adiciona uma caixa que pode ser clicada
+        const box = BABYLON.MeshBuilder.CreateBox("box", {size: 10}, scene);
+        box.position.x = -5;
+        box.position.y = 1;
+
+        // Animação: faz a esfera girar
+        scene.registerBeforeRender(function () {
+            sphere.rotation.y += 0.01; // Rotação contínua da esfera
+        });
+
+        // Interação com a caixa: Clicar e arrastar
+        let isDragging = false;
+        let lastPointer = null;
+
+        canvas.addEventListener("pointerdown", function (evt) {
+            const pickInfo = scene.pick(evt.clientX, evt.clientY);
+            if (pickInfo.hit && pickInfo.pickedMesh === box) {
+                isDragging = true;
+                lastPointer = new BABYLON.Vector2(evt.clientX, evt.clientY);
+            }
+        });
+
+        canvas.addEventListener("pointermove", function (evt) {
+            if (isDragging && lastPointer) {
+                const delta = new BABYLON.Vector2(evt.clientX - lastPointer.x, evt.clientY - lastPointer.y);
+                box.position.x += delta.x * 0.2;
+                box.position.y -= delta.y * 0.2;
+                lastPointer = new BABYLON.Vector2(evt.clientX, evt.clientY);
+            }
+        });
+
+        canvas.addEventListener("pointerup", function () {
+            isDragging = false;
+        });
+
+        // Renderiza a cena
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        // Ajusta a tela quando o tamanho for alterado
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

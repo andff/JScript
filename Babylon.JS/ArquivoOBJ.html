@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Babylon.js - Carregar e Girar OBJ</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylon.objFileLoader.min.js"></script>
+</head>
+<body>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+    <script>
+        // Seleciona o canvas
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
+
+        // Adiciona uma câmera
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+
+        // Adiciona uma luz direcional para garantir que o modelo fique bem iluminado
+        const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(0, -1, 0), scene);
+        light.position = new BABYLON.Vector3(10, 10, 10);
+
+        // Carregar o modelo OBJ da pasta 'arquivos'
+        BABYLON.SceneLoader.Append("arquivos/", "14bis.obj", scene, function () {
+            console.log("Modelo carregado com sucesso!");
+        }, null, function (scene, message) {
+            console.error("Erro ao carregar modelo: ", message);
+        });
+
+        // Função para fazer o objeto girar
+        scene.registerBeforeRender(function () {
+            // Gira o modelo ao redor do eixo Y
+            scene.meshes.forEach(function(mesh) {
+                if (mesh.name === "14bis") {
+                    mesh.rotation.y += 0.01; // Rotação no eixo Y
+                }
+            });
+        });
+
+        // Renderiza a cena
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+
+        // Ajusta o tamanho da tela ao redimensionar
+        window.addEventListener("resize", () => {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

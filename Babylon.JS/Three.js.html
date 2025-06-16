@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Audio Visualization</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #audioFile {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  
+  <input type="file" id="audioFile" accept="audio/*">
+  
+  <script src="three.min.js"></script>
+  <script>
+    // O restante do código permanece igual...
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 50;
+
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add lights
+    const light = new THREE.PointLight(0xffffff, 1, 500);
+    light.position.set(10, 10, 25);
+    scene.add(light);
+
+    // Create bars for visualization
+    const barCount = 64;
+    const bars = [];
+    for (let i = 0; i < barCount; i++) {
+      const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+      const material = new THREE.MeshStandardMaterial({ color: 0x44aa88 });
+      const bar = new THREE.Mesh(geometry, material);
+      bar.position.x = (i - barCount / 2) * 1.2;
+      scene.add(bar);
+      bars.push(bar);
+    }
+
+    // Web Audio API setup
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 128;
+    const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+
+    // Load audio file
+    const audioInput = document.getElementById('audioFile');
+    let audioSource;
+
+    audioInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          audioContext.decodeAudioData(e.target.result, (buffer) => {
+            if (audioSource) audioSource.disconnect();
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = buffer;
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+            audioSource.start();
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Get frequency data
+      analyser.getByteFrequencyData(frequencyData);
+
+      // Update bars
+      bars.forEach((bar, index) => {
+        const scale = frequencyData[index] / 255 || 0.1;
+        bar.scale.y = scale * 10;
+        bar.material.color.setHSL(scale, 1, 0.5);
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

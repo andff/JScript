@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js - Ambiente Interativo com Efeitos</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <canvas id="renderCanvas" style="width: 100%; height: 100%"></canvas>
+    <script>
+        // Configuração da cena
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
+
+        // Câmera de órbita
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2, 15, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+
+        // Luz direcional
+        const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(0, -1, 1), scene);
+        light.position = new BABYLON.Vector3(10, 10, 10);
+
+        // Adiciona o plano de fundo
+        const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 20, height: 20}, scene);
+        ground.position.y = -2;
+
+        // Criação de um cubo que vai se mover pela cena
+        const cube = BABYLON.MeshBuilder.CreateBox("cube", {size: 2}, scene);
+        cube.position.y = 1;
+        cube.position.x = -8;
+
+        // Função para mover o cubo automaticamente
+        let direction = 0.1;
+        scene.registerBeforeRender(function () {
+            cube.position.x += direction;
+            if (cube.position.x > 8 || cube.position.x < -8) {
+                direction *= -1; // Inverte a direção ao atingir a borda
+            }
+        });
+
+        // Adiciona o sistema de partículas (simulando fumaça ou fogo)
+        const particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
+        particleSystem.particleTexture = new BABYLON.Texture("arquivos/flare.png", scene);  // Caminho atualizado
+        particleSystem.emitter = cube; // Emite partículas do cubo
+        particleSystem.minEmitPower = 1;
+        particleSystem.maxEmitPower = 3;
+        particleSystem.emitRate = 100;
+        particleSystem.start();
+
+        // Adiciona uma animação no cubo para ele "saltar"
+        const animation = new BABYLON.Animation("bounce", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        const keys = [
+            { frame: 0, value: 1 },
+            { frame: 30, value: 3 },
+            { frame: 60, value: 1 }
+        ];
+        animation.setKeys(keys);
+        cube.animations.push(animation);
+        scene.beginAnimation(cube, 0, 60, true); // Inicia a animação de salto
+
+        // Cria o fundo com partículas flutuando
+        const particleBackground = new BABYLON.ParticleSystem("backgroundParticles", 1000, scene);
+        particleBackground.particleTexture = new BABYLON.Texture("arquivos/flare.png", scene);  // Caminho atualizado
+        particleBackground.emitter = new BABYLON.Vector3(0, 5, 0); // Emissor no topo
+        particleBackground.minEmitPower = 0.2;
+        particleBackground.maxEmitPower = 0.5;
+        particleBackground.emitRate = 20;
+        particleBackground.start();
+
+        // Função de renderização
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        // Ajusta a tela quando o tamanho for alterado
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

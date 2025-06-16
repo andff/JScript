@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Esferas com Babylon.js</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <canvas id="renderCanvas" style="width: 100%; height: 100%"></canvas>
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
+
+        // Câmera de órbita
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2, 20, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+
+        // Luz ambiente
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        light.intensity = 0.7;
+
+        // Esfera controlável (a bola)
+        const player = BABYLON.MeshBuilder.CreateSphere("player", {diameter: 2}, scene);
+        player.position.y = 1;
+        player.position.x = 0;
+
+        // Material da esfera
+        const playerMaterial = new BABYLON.StandardMaterial("playerMaterial", scene);
+        playerMaterial.diffuseColor = new BABYLON.Color3(0, 1, 0);
+        player.material = playerMaterial;
+
+        // Controle de movimento da esfera
+        let speed = 0.2;
+        let movement = { x: 0, y: 0 };
+
+        window.addEventListener("keydown", function (event) {
+            if (event.key === "ArrowLeft") movement.x = -1;
+            if (event.key === "ArrowRight") movement.x = 1;
+            if (event.key === "ArrowUp") movement.y = 1;
+            if (event.key === "ArrowDown") movement.y = -1;
+        });
+
+        window.addEventListener("keyup", function (event) {
+            if (event.key === "ArrowLeft" || event.key === "ArrowRight") movement.x = 0;
+            if (event.key === "ArrowUp" || event.key === "ArrowDown") movement.y = 0;
+        });
+
+        // Função para movimentar a esfera
+        scene.registerBeforeRender(function () {
+            player.position.x += movement.x * speed;
+            player.position.y += movement.y * speed;
+
+            // Limitar os movimentos para dentro da tela
+            if (player.position.x < -10) player.position.x = -10;
+            if (player.position.x > 10) player.position.x = 10;
+            if (player.position.y < 1) player.position.y = 1; // Não deixar a esfera cair
+            if (player.position.y > 8) player.position.y = 8; // Limite superior
+        });
+
+        // Criar obstáculos caindo do topo
+        const obstacles = [];
+        function createObstacle() {
+            const obstacle = BABYLON.MeshBuilder.CreateBox("obstacle", {height: 2, width: 2, depth: 2}, scene);
+            obstacle.position.x = Math.random() * 20 - 10; // posição aleatória
+            obstacle.position.y = 10;
+            obstacle.position.z = Math.random() * 20 - 10;
+            obstacle.material = new BABYLON.StandardMaterial("obstacleMaterial", scene);
+            obstacle.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // vermelho
+
+            obstacles.push(obstacle);
+        }
+
+        // Animar os obstáculos caindo
+        scene.registerBeforeRender(function () {
+            obstacles.forEach(obstacle => {
+                obstacle.position.y -= 0.1; // velocidade dos obstáculos
+                if (obstacle.position.y < -5) {
+                    obstacle.dispose(); // Remover obstáculos que saem da tela
+                }
+
+                // Verificar colisões
+                if (player.intersectsMesh(obstacle, false)) {
+                    alert("Você perdeu!");
+                    scene.dispose(); // Finaliza o jogo
+                }
+            });
+        });
+
+        // Gerar obstáculos a cada 1 segundo
+        setInterval(createObstacle, 1000);
+
+        // Função de renderização
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        // Ajusta a tela quando o tamanho for alterado
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
