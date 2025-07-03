@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Depth Map 3D Effect (Original Size)</title>
+  <style>
+    body, html {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    let scene, camera, renderer, material, mesh;
+    let uniforms;
+
+    const loader = new THREE.TextureLoader();
+
+    // Load both textures first
+    const texture = loader.load('foto.png', onTextureLoaded);
+    const depth = loader.load('foto_depth.png');
+
+    function onTextureLoaded(tex) {
+      const imgWidth = tex.image.width;
+      const imgHeight = tex.image.height;
+
+      scene = new THREE.Scene();
+
+      // Orthographic camera sized to the image
+      camera = new THREE.OrthographicCamera(
+        imgWidth / -2, imgWidth / 2,
+        imgHeight / 2, imgHeight / -2,
+        0, 1
+      );
+
+      renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(imgWidth, imgHeight);
+      document.body.appendChild(renderer.domElement);
+
+      uniforms = {
+        u_image: { value: texture },
+        u_depth: { value: depth },
+        u_mouse: { value: new THREE.Vector2(0.5,0.5) },
+        u_strength: { value: 20.0 }
+      };
+
+      material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D u_image;
+          uniform sampler2D u_depth;
+          uniform vec2 u_mouse;
+          uniform float u_strength;
+          varying vec2 vUv;
+
+          void main() {
+            float depth = texture2D(u_depth, vUv).r;
+            vec2 offset = (u_mouse - vec2(0.5)) * u_strength * depth;
+            vec2 uv = vUv + offset / vec2(${imgWidth.toFixed(1)}, ${imgHeight.toFixed(1)});
+            gl_FragColor = texture2D(u_image, uv);
+          }
+        `
+      });
+
+      // Plane geometry matching the image size
+      const geometry = new THREE.PlaneGeometry(imgWidth, imgHeight);
+      mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      window.addEventListener('mousemove', (e) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        uniforms.u_mouse.value.x = (e.clientX - rect.left) / rect.width;
+        uniforms.u_mouse.value.y = 1.0 - (e.clientY - rect.top) / rect.height;
+      });
+
+      animate();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (renderer && scene && camera)
+        renderer.render(scene, camera);
+    }
+  </script>
+</body>
+</html>

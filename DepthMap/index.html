@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Depth Map 3D Effect - Canvas Version</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    canvas {
+      display: block;
+      cursor: grab;
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    let img = new Image();
+    let depth = new Image();
+    let imgData = null;
+    let depthData = null;
+
+    img.src = 'foto.png';
+    depth.src = 'foto_depth.png';
+
+    Promise.all([
+      new Promise((res) => img.onload = res),
+      new Promise((res) => depth.onload = res)
+    ]).then(() => {
+      width = img.width;
+      height = img.height;
+      canvas.width = width;
+      canvas.height = height;
+
+      // Get image data from the main image
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width = width;
+      tmpCanvas.height = height;
+      const tmpCtx = tmpCanvas.getContext('2d');
+      tmpCtx.drawImage(img, 0, 0, width, height);
+      imgData = tmpCtx.getImageData(0, 0, width, height).data;
+
+      // Get depth data
+      tmpCtx.clearRect(0, 0, width, height);
+      tmpCtx.drawImage(depth, 0, 0, width, height);
+      depthData = tmpCtx.getImageData(0, 0, width, height).data;
+
+      draw(0, 0);
+    });
+
+    function draw(offsetX, offsetY) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(img, offsetX, offsetY, width, height, 0, 0, width, height);
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!depthData || !imgData) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const percentX = (x / width - 0.5) * 2;
+      const percentY = (y / height - 0.5) * 2;
+
+      const imageData = ctx.createImageData(width, height);
+
+      for (let i = 0; i < width * height; i++) {
+        const di = i * 4;
+        const depthValue = depthData[di];
+        const factor = (depthValue / 255 - 0.5) * 30;
+
+        const dx = Math.round(percentX * factor);
+        const dy = Math.round(percentY * factor);
+
+        let srcX = (i % width) + dx;
+        let srcY = Math.floor(i / width) + dy;
+
+        if (srcX < 0) srcX = 0;
+        if (srcX >= width) srcX = width - 1;
+        if (srcY < 0) srcY = 0;
+        if (srcY >= height) srcY = height - 1;
+
+        const srcIndex = (srcY * width + srcX) * 4;
+
+        // Use pixels from the main image (NOT the depth image)
+        imageData.data[di]     = imgData[srcIndex];
+        imageData.data[di + 1] = imgData[srcIndex + 1];
+        imageData.data[di + 2] = imgData[srcIndex + 2];
+        imageData.data[di + 3] = 255;
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      draw(0, 0);
+    });
+  </script>
+</body>
+</html>
