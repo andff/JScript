@@ -9,15 +9,16 @@
     "build-mac": "electron-builder --mac",
     "build-linux": "electron-builder --linux"
   },
-  "dependencies": {},
   "devDependencies": {
-    "electron": "^29.0.0",
-    "electron-builder": "^24.0.0"
+    "electron": "^40.8.0",
+    "electron-builder": "^26.8.1"
   },
   "build": {
     "appId": "com.socialdashboard.app",
     "productName": "SocialGrid",
-    "files": ["**/*"],
+    "files": [
+      "**/*"
+    ],
     "win": {
       "target": "nsis",
       "icon": "icon.ico"
