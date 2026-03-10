@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SocialGrid</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap');
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:#0a0a0a; --surface:#101010; --border:#1e1e1e;
+      --text:#e0e0e0; --muted:#555; --accent:#b4ff6e; --h:50px;
+    }
+    html, body { width:100%; height:var(--h); background:var(--surface); overflow:hidden; user-select:none; -webkit-app-region:drag; }
+
+    header {
+      display:flex; align-items:center; height:var(--h);
+      padding:0 14px; gap:10px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .logo {
+      font-family:'Space Mono',monospace; font-size:12px; font-weight:700;
+      color:var(--accent); letter-spacing:.08em; flex-shrink:0;
+    }
+    .logo span { color:var(--muted); }
+
+    .sep { width:1px; height:22px; background:var(--border); flex-shrink:0; }
+    .spacer { flex:1; }
+
+    .panels-bar { display:flex; gap:5px; -webkit-app-region:no-drag; flex-wrap:wrap; }
+
+    .panel-btn {
+      display:flex; align-items:center; gap:5px;
+      padding:4px 9px; border-radius:6px; border:1px solid var(--border);
+      background:transparent; color:var(--muted);
+      font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+      cursor:pointer; transition:all .15s; -webkit-app-region:no-drag;
+      white-space:nowrap;
+    }
+    .panel-btn:hover { background:#1a1a1a; color:var(--text); border-color:#333; }
+    .dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
+
+    .icon-btn {
+      width:28px;height:28px; border-radius:6px; border:1px solid var(--border);
+      background:transparent; color:var(--muted); cursor:pointer;
+      display:flex;align-items:center;justify-content:center; font-size:12px;
+      transition:all .15s; -webkit-app-region:no-drag;
+    }
+    .icon-btn:hover { background:#1a1a1a; color:var(--text); border-color:#333; }
+
+    .status { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:6px; white-space:nowrap; }
+    .status-dot { width:6px;height:6px;border-radius:50%;background:var(--accent); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .window-controls { display:flex; gap:6px; -webkit-app-region:no-drag; }
+    .wc { width:13px;height:13px;border-radius:50%;border:none;cursor:pointer;transition:opacity .15s; }
+    .wc:hover{opacity:.7}
+    .wc-close{background:#ff5f57} .wc-min{background:#febc2e} .wc-max{background:#28c840}
+
+    .back-btn {
+      display:flex;align-items:center;gap:5px; padding:4px 9px;
+      border-radius:6px; border:1px solid var(--border);
+      background:transparent; color:var(--muted);
+      font-family:'DM Sans',sans-serif; font-size:11px;
+      cursor:pointer; transition:all .15s; -webkit-app-region:no-drag;
+    }
+    .back-btn:hover { background:#1a1a1a; color:var(--text); border-color:#333; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">SOCIAL<span>GRID</span></div>
+    <div class="sep"></div>
+    <div class="panels-bar" id="panelsBar"></div>
+    <div class="spacer"></div>
+    <button class="icon-btn" onclick="reloadAll()" title="Recarregar tudo">⟳</button>
+    <div class="sep"></div>
+    <div class="status"><div class="status-dot"></div><span id="statusText">—</span></div>
+    <div class="sep"></div>
+    <button class="back-btn" onclick="window.electronAPI.goToSetup()">⚙ Config</button>
+    <div class="sep"></div>
+    <div class="window-controls">
+      <button class="wc wc-min"   onclick="window.electronAPI.minimize()"></button>
+      <button class="wc wc-max"   onclick="window.electronAPI.maximize()"></button>
+      <button class="wc wc-close" onclick="window.electronAPI.close()"></button>
+    </div>
+  </header>
+
+  <script>
+    // Receive config from main process
+    const config = JSON.parse(decodeURIComponent(location.hash.slice(1) || '{}'));
+    const sites = config.sites || [];
+
+    document.getElementById('statusText').textContent = `${sites.length} painel${sites.length!==1?'s':''} ativos`;
+
+    const bar = document.getElementById('panelsBar');
+    sites.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'panel-btn';
+      btn.innerHTML = `<span class="dot" style="background:${s.color||'#888'}"></span>${s.name}`;
+      btn.onclick = () => window.electronAPI.goHome(i);
+      bar.appendChild(btn);
+    });
+
+    function reloadAll() {
+      sites.forEach((_, i) => window.electronAPI.reloadSite(i));
+    }
+  </script>
+</body>
+</html>

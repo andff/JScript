@@ -1,0 +1,25 @@
+{
+  "name": "social-dashboard-v2",
+  "version": "2.0.0",
+  "description": "Painel de redes sociais com layout configurável",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build-win":   "electron-builder --win",
+    "build-mac":   "electron-builder --mac",
+    "build-linux": "electron-builder --linux"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.socialgrid.app",
+    "productName": "SocialGrid",
+    "files": ["**/*"],
+    "win":   { "target": "nsis" },
+    "mac":   { "target": "dmg" },
+    "linux": { "target": "AppImage" }
+  }
+}

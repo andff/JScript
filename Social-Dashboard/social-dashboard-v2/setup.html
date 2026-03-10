@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SocialGrid — Configurar</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap');
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --bg: #080808;
+      --card: #101010;
+      --border: #1e1e1e;
+      --border2: #2a2a2a;
+      --text: #e0e0e0;
+      --muted: #555;
+      --accent: #b4ff6e;
+      --accent2: #6eb4ff;
+    }
+
+    html, body {
+      width:100%; height:100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+      -webkit-app-region: drag;
+    }
+
+    /* scrollable inner area */
+    .scroll-wrap {
+      width:100%; height:100%;
+      overflow-y: auto;
+      -webkit-app-region: no-drag;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+
+    .window-controls {
+      position: fixed; top:14px; right:16px;
+      display:flex; gap:7px; z-index:100;
+      -webkit-app-region: no-drag;
+    }
+    .wc { width:13px;height:13px;border-radius:50%;border:none;cursor:pointer; transition:opacity .15s; }
+    .wc:hover{opacity:.7}
+    .wc-min  {background:#febc2e}
+    .wc-max  {background:#28c840}
+    .wc-close{background:#ff5f57}
+
+    /* ── Logo ── */
+    .logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 22px; font-weight:700;
+      letter-spacing:.1em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .logo span { color: var(--muted); }
+    .subtitle { font-size:13px; color:var(--muted); margin-bottom:36px; }
+
+    /* ── Container ── */
+    .config-box {
+      width: 100%; max-width: 780px;
+      display: flex; flex-direction: column; gap: 28px;
+    }
+
+    /* ── Section ── */
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; font-weight:700;
+      letter-spacing:.15em; color:var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    /* ── Sites grid ── */
+    .sites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+      gap: 10px;
+    }
+
+    .site-card {
+      position: relative;
+      border: 1.5px solid var(--border2);
+      border-radius: 10px;
+      background: var(--card);
+      padding: 14px 14px 12px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, transform .1s;
+      -webkit-app-region: no-drag;
+    }
+    .site-card:hover { border-color:#333; background:#151515; }
+    .site-card.selected {
+      border-color: var(--accent);
+      background: #111;
+    }
+    .site-card.selected .site-name { color: var(--accent); }
+
+    .site-check {
+      position:absolute; top:10px; right:10px;
+      width:18px; height:18px; border-radius:50%;
+      border: 1.5px solid var(--border2);
+      background: transparent;
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px;
+      transition: all .15s;
+    }
+    .site-card.selected .site-check {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+    }
+
+    .site-icon { font-size:22px; margin-bottom:6px; display:block; }
+    .site-name { font-size:13px; font-weight:600; color:var(--text); }
+    .site-url  { font-size:11px; color:var(--muted); margin-top:2px; }
+
+    /* custom site input */
+    .custom-row {
+      display:flex; gap:8px; margin-top:10px;
+      -webkit-app-region: no-drag;
+    }
+    .custom-input {
+      flex:1; background:#0e0e0e; border:1.5px solid var(--border2);
+      border-radius:8px; padding:9px 13px;
+      color:var(--text); font-size:13px; font-family:'DM Sans',sans-serif;
+      outline:none; transition:border-color .15s;
+    }
+    .custom-input::placeholder { color:var(--muted); }
+    .custom-input:focus { border-color:#444; }
+    .add-btn {
+      padding:9px 18px; border-radius:8px;
+      border:1.5px solid var(--border2);
+      background:transparent; color:var(--muted);
+      font-size:13px; font-family:'DM Sans',sans-serif;
+      cursor:pointer; transition:all .15s;
+    }
+    .add-btn:hover { background:#1a1a1a; color:var(--text); border-color:#444; }
+
+    /* ── Layout chooser ── */
+    .layout-grid {
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+
+    .layout-card {
+      border:1.5px solid var(--border2);
+      border-radius:10px;
+      background:var(--card);
+      padding:14px;
+      cursor:pointer;
+      transition:border-color .15s, background .15s;
+      -webkit-app-region: no-drag;
+    }
+    .layout-card:hover { border-color:#333; background:#151515; }
+    .layout-card.selected { border-color:var(--accent2); }
+    .layout-card.selected .layout-name { color:var(--accent2); }
+
+    .layout-preview {
+      width:100%; aspect-ratio:16/9;
+      background:#0a0a0a;
+      border:1px solid #1a1a1a;
+      border-radius:6px;
+      display:grid;
+      gap:2px;
+      padding:4px;
+      margin-bottom:10px;
+      overflow:hidden;
+    }
+
+    .layout-name { font-size:12px; font-weight:600; }
+    .layout-desc { font-size:11px; color:var(--muted); margin-top:2px; }
+
+    .layout-cell {
+      border-radius:3px;
+      background:#1c1c1c;
+    }
+
+    /* grid previews */
+    .lp-cols-1 { grid-template-columns: 1fr; }
+    .lp-cols-2 { grid-template-columns: 1fr 1fr; }
+    .lp-cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .lp-cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .lp-2x2   { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+    .lp-3x2   { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+    /* ── Launch button ── */
+    .launch-btn {
+      width:100%;
+      padding:15px;
+      border-radius:10px;
+      border:none;
+      background: var(--accent);
+      color:#000;
+      font-family:'Space Mono',monospace;
+      font-size:13px; font-weight:700;
+      letter-spacing:.08em;
+      cursor:pointer;
+      transition:opacity .15s, transform .1s;
+      -webkit-app-region: no-drag;
+    }
+    .launch-btn:hover { opacity:.88; }
+    .launch-btn:active { transform:scale(.98); }
+    .launch-btn:disabled { opacity:.3; cursor:not-allowed; }
+
+    .counter {
+      text-align:center;
+      font-size:12px; color:var(--muted);
+      margin-top:-12px;
+    }
+    .counter span { color:var(--accent); font-weight:600; }
+  </style>
+</head>
+<body>
+  <div class="window-controls">
+    <button class="wc wc-min"      onclick="window.electronAPI.minimize()"></button>
+    <button class="wc wc-max"      onclick="window.electronAPI.maximize()"></button>
+    <button class="wc wc-close"    onclick="window.electronAPI.close()"></button>
+  </div>
+
+  <div class="scroll-wrap">
+    <div class="logo">SOCIAL<span>GRID</span></div>
+    <div class="subtitle">Escolha os sites e o layout do painel</div>
+
+    <div class="config-box">
+
+      <!-- SITES -->
+      <div>
+        <div class="section-label">① Sites para abrir</div>
+        <div class="sites-grid" id="sitesGrid"></div>
+        <div class="custom-row">
+          <input class="custom-input" id="customUrl" placeholder="Adicionar site personalizado... (ex: youtube.com)" />
+          <button class="add-btn" onclick="addCustom()">+ Adicionar</button>
+        </div>
+      </div>
+
+      <!-- LAYOUT -->
+      <div>
+        <div class="section-label">② Layout dos painéis</div>
+        <div class="layout-grid" id="layoutGrid"></div>
+      </div>
+
+      <!-- COUNTER -->
+      <div class="counter" id="counter">Selecione pelo menos 1 site</div>
+
+      <!-- LAUNCH -->
+      <button class="launch-btn" id="launchBtn" disabled onclick="launch()">
+        ABRIR PAINEL →
+      </button>
+
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_SITES = [
+      { key:'twitter',   name:'X (Twitter)', url:'https://x.com',           icon:'𝕏',  color:'#e0e0e0' },
+      { key:'facebook',  name:'Facebook',    url:'https://facebook.com',    icon:'📘', color:'#1877F2' },
+      { key:'instagram', name:'Instagram',   url:'https://instagram.com',   icon:'📸', color:'#E1306C' },
+      { key:'reddit',    name:'Reddit',      url:'https://reddit.com',      icon:'🤖', color:'#FF4500' },
+      { key:'youtube',   name:'YouTube',     url:'https://youtube.com',     icon:'▶️',  color:'#FF0000' },
+      { key:'tiktok',    name:'TikTok',      url:'https://tiktok.com',      icon:'🎵', color:'#69C9D0' },
+      { key:'linkedin',  name:'LinkedIn',    url:'https://linkedin.com',    icon:'💼', color:'#0A66C2' },
+      { key:'twitch',    name:'Twitch',      url:'https://twitch.tv',       icon:'🎮', color:'#9146FF' },
+      { key:'pinterest', name:'Pinterest',   url:'https://pinterest.com',   icon:'📌', color:'#E60023' },
+      { key:'discord',   name:'Discord',     url:'https://discord.com/app', icon:'🎧', color:'#5865F2' },
+    ];
+
+    const LAYOUTS = [
+      { key:'cols-1', name:'1 Coluna',   desc:'Empilhado vertical',   cells:4, gridClass:'lp-cols-1', cols:1, rows:null },
+      { key:'cols-2', name:'2 Colunas',  desc:'Side by side',         cells:4, gridClass:'lp-cols-2', cols:2, rows:null },
+      { key:'cols-3', name:'3 Colunas',  desc:'Triplo lado a lado',   cells:3, gridClass:'lp-cols-3', cols:3, rows:null },
+      { key:'cols-4', name:'4 Colunas',  desc:'Quádruplo horizontal', cells:4, gridClass:'lp-cols-4', cols:4, rows:null },
+      { key:'2x2',    name:'Grade 2×2',  desc:'4 quadrantes iguais',  cells:4, gridClass:'lp-2x2',   cols:2, rows:2 },
+      { key:'3x2',    name:'Grade 3×2',  desc:'6 painéis em grade',   cells:6, gridClass:'lp-3x2',   cols:3, rows:2 },
+    ];
+
+    let sites = [...DEFAULT_SITES];
+    let selectedSites = [];
+    let selectedLayout = '2x2';
+
+    // render sites
+    function renderSites() {
+      const g = document.getElementById('sitesGrid');
+      g.innerHTML = '';
+      sites.forEach(s => {
+        const sel = selectedSites.includes(s.key);
+        const d = document.createElement('div');
+        d.className = 'site-card' + (sel ? ' selected' : '');
+        d.innerHTML = `
+          <div class="site-check">${sel ? '✓' : ''}</div>
+          <span class="site-icon">${s.icon}</span>
+          <div class="site-name">${s.name}</div>
+          <div class="site-url">${s.url.replace('https://','')}</div>
+        `;
+        d.onclick = () => toggleSite(s.key);
+        g.appendChild(d);
+      });
+      updateCounter();
+    }
+
+    function toggleSite(key) {
+      const i = selectedSites.indexOf(key);
+      if (i >= 0) selectedSites.splice(i, 1);
+      else selectedSites.push(key);
+      renderSites();
+    }
+
+    function addCustom() {
+      let url = document.getElementById('customUrl').value.trim();
+      if (!url) return;
+      if (!url.startsWith('http')) url = 'https://' + url;
+      const domain = url.replace('https://','').replace('http://','').split('/')[0];
+      const key = 'custom_' + Date.now();
+      sites.push({ key, name: domain, url, icon: '🌐', color:'#888' });
+      selectedSites.push(key);
+      document.getElementById('customUrl').value = '';
+      renderSites();
+    }
+
+    // render layouts
+    function renderLayouts() {
+      const g = document.getElementById('layoutGrid');
+      g.innerHTML = '';
+      LAYOUTS.forEach(l => {
+        const sel = selectedLayout === l.key;
+        const d = document.createElement('div');
+        d.className = 'layout-card' + (sel ? ' selected' : '');
+
+        // build preview cells
+        const preview = document.createElement('div');
+        preview.className = 'layout-preview ' + l.gridClass;
+        for (let i=0; i<l.cells; i++) {
+          const c = document.createElement('div');
+          c.className = 'layout-cell';
+          preview.appendChild(c);
+        }
+
+        d.appendChild(preview);
+        d.innerHTML += `<div class="layout-name">${l.name}</div><div class="layout-desc">${l.desc}</div>`;
+        d.querySelector('.layout-preview')?.replaceWith(preview); // fix innerHTML overwrite
+        d.onclick = () => { selectedLayout = l.key; renderLayouts(); };
+        g.appendChild(d);
+      });
+    }
+
+    // fix: rebuild properly
+    function renderLayoutsClean() {
+      const g = document.getElementById('layoutGrid');
+      g.innerHTML = '';
+      LAYOUTS.forEach(l => {
+        const sel = selectedLayout === l.key;
+        const card = document.createElement('div');
+        card.className = 'layout-card' + (sel ? ' selected' : '');
+
+        const preview = document.createElement('div');
+        preview.className = 'layout-preview ' + l.gridClass;
+        for (let i=0; i<l.cells; i++) {
+          const c = document.createElement('div'); c.className='layout-cell';
+          preview.appendChild(c);
+        }
+        card.appendChild(preview);
+
+        const name = document.createElement('div');
+        name.className='layout-name'; name.textContent=l.name;
+        const desc = document.createElement('div');
+        desc.className='layout-desc'; desc.textContent=l.desc;
+        card.appendChild(name); card.appendChild(desc);
+
+        card.onclick = () => { selectedLayout = l.key; renderLayoutsClean(); };
+        g.appendChild(card);
+      });
+    }
+
+    function updateCounter() {
+      const n = selectedSites.length;
+      const counter = document.getElementById('counter');
+      const btn = document.getElementById('launchBtn');
+      if (n === 0) {
+        counter.innerHTML = 'Selecione pelo menos 1 site';
+        btn.disabled = true;
+      } else {
+        counter.innerHTML = `<span>${n}</span> site${n>1?'s':''} selecionado${n>1?'s':''}`;
+        btn.disabled = false;
+        btn.textContent = `ABRIR PAINEL COM ${n} SITE${n>1?'S':''} →`;
+      }
+    }
+
+    function launch() {
+      if (selectedSites.length === 0) return;
+      const layout = LAYOUTS.find(l => l.key === selectedLayout);
+      const sitesData = selectedSites.map(k => sites.find(s => s.key === k)).filter(Boolean);
+      window.electronAPI.launchDashboard({ sites: sitesData, layout });
+    }
+
+    renderSites();
+    renderLayoutsClean();
+  </script>
+</body>
+</html>

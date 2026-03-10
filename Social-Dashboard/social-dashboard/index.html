@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Social Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #222222;
+      --text: #e8e8e8;
+      --muted: #555;
+      --accent: #7fffb2;
+      --h: 52px;
+    }
+
+    html, body {
+      width: 100%; height: var(--h);
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      height: var(--h);
+      padding: 0 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+
+    .logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+
+    .logo span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .panels {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+      -webkit-app-region: no-drag;
+    }
+
+    .panel-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      -webkit-app-region: no-drag;
+    }
+
+    .panel-btn:hover {
+      background: #1a1a1a;
+      color: var(--text);
+      border-color: #333;
+    }
+
+    .panel-btn .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 4px;
+      -webkit-app-region: no-drag;
+    }
+
+    .icon-btn {
+      width: 30px; height: 30px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      transition: all 0.15s;
+      -webkit-app-region: no-drag;
+    }
+
+    .icon-btn:hover { background: #1a1a1a; color: var(--text); border-color: #333; }
+
+    .spacer { flex: 1; }
+
+    .window-controls {
+      display: flex;
+      gap: 6px;
+      -webkit-app-region: no-drag;
+    }
+
+    .wc-btn {
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+    .wc-btn:hover { opacity: 0.75; }
+    .wc-close    { background: #ff5f57; }
+    .wc-minimize { background: #febc2e; }
+    .wc-maximize { background: #28c840; }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Logo -->
+    <div class="logo">SOCIAL<span>GRID</span></div>
+
+    <div class="divider"></div>
+
+    <!-- Per-panel controls -->
+    <div class="panels">
+      <button class="panel-btn" onclick="goHome('twitter')" title="Ir para X">
+        <span class="dot" style="background:#fff"></span> X
+      </button>
+      <button class="panel-btn" onclick="goHome('facebook')" title="Ir para Facebook">
+        <span class="dot" style="background:#1877F2"></span> Facebook
+      </button>
+      <button class="panel-btn" onclick="goHome('instagram')" title="Ir para Instagram">
+        <span class="dot" style="background:#E1306C"></span> Instagram
+      </button>
+      <button class="panel-btn" onclick="goHome('reddit')" title="Ir para Reddit">
+        <span class="dot" style="background:#FF4500"></span> Reddit
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Quick actions -->
+    <div class="btn-group">
+      <button class="icon-btn" onclick="reloadAll()" title="Recarregar tudo">⟳</button>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- Status -->
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      <span>4 painéis ativos</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Window controls (macOS style) -->
+    <div class="window-controls">
+      <button class="wc-btn wc-close"    onclick="window.electronAPI.close()"></button>
+      <button class="wc-btn wc-minimize" onclick="window.electronAPI.minimize()"></button>
+      <button class="wc-btn wc-maximize" onclick="window.electronAPI.maximize()"></button>
+    </div>
+  </header>
+
+  <script>
+    function goHome(key)    { window.electronAPI.goHome(key); }
+    function goBack(key)    { window.electronAPI.goBack(key); }
+    function reload(key)    { window.electronAPI.reloadSite(key); }
+    function reloadAll()    { ['twitter','facebook','instagram','reddit'].forEach(reload); }
+  </script>
+</body>
+</html>
